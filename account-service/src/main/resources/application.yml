@@ -1,0 +1,22 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: account-service
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+      eureka:
+        approximateZoneFromHostname: false
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+    fetchRegistry: true
+  instance:
+    preferIpAddress: true
+
