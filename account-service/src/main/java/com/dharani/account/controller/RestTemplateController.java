@@ -2,6 +2,7 @@ package com.dharani.account.controller;
 
 import com.dharani.account.model.Account;
 import com.dharani.account.model.Address;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,13 +19,15 @@ public class RestTemplateController {
     private RestTemplate restTemplate;
 
     @GetMapping("/{id}")
-    private Account getAccountsUsingRest(@PathVariable int id) {
-        try {
-            Address address = restTemplate.getForObject("http://ADDRESS-SERVICE/address/{id}", Address.class, id);
-            return new Account(id, "Dharani", address);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error calling address service: " + e.getMessage());
-        }
+    @CircuitBreaker(name="addressServiceCB", fallbackMethod = "fallbackAddress")
+    public Account getAccountUsingRest(@PathVariable int id) {
+        Address address = restTemplate.getForObject("http://address-service/address/" + id, Address.class);
+        return new Account(id, "Dharani", address);
+    }
+
+    private Account  fallbackAddress(int id) {
+        System.out.println("Fallback method called for id: " + id);
+        Address address = new Address(id, "Fallback Address", "0000000");
+        return new Account(id, "Dharani", address);
     }
 }
