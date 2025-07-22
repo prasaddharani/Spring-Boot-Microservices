@@ -20,7 +20,7 @@ public class AddressController {
     );
 
     @GetMapping("/{id}")
-    private Address getAddress(@PathVariable String id) {
+    public Address getAddress(@PathVariable String id) {
         int addressId = Integer.parseInt(id);
         return addresses.stream()
                 .filter(address -> addressId == address.getId())
