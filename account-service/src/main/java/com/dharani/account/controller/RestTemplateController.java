@@ -18,16 +18,19 @@ public class RestTemplateController {
     @Autowired
     private RestTemplate restTemplate;
 
-    @GetMapping("/{id}")
-    @CircuitBreaker(name="addressServiceCB", fallbackMethod = "fallbackAddress")
+    @GetMapping("/rest/{id}")
+    @CircuitBreaker(name = "addressServiceCB", fallbackMethod = "fallbackAddress")
     public Account getAccountUsingRest(@PathVariable int id) {
-        Address address = restTemplate.getForObject("http://address-service/address/" + id, Address.class);
+        // REMOVE try-catch block
+        Address address = restTemplate.getForObject("http://ADDRESS-SERVICE/address/" + id, Address.class);
         return new Account(id, "Dharani", address);
     }
 
-    private Account  fallbackAddress(int id) {
-        System.out.println("Fallback method called for id: " + id);
+    // Fallback must match the method signature + Throwable
+    public Account fallbackAddress(int id, Throwable t) {
+        System.out.println("⚠️ Fallback called due to: " + t.getMessage());
         Address address = new Address(id, "Fallback Address", "0000000");
         return new Account(id, "Dharani", address);
     }
+
 }
